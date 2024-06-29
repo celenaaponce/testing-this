@@ -22,7 +22,7 @@ while True:
         img_rgb = video_frame.to_ndarray(format="rgb24")
         image_place.image(img_rgb)
     else:
-        logger.warning("AudioReciver is not set. Abort.")
+        st.write("AudioReciver is not set. Abort.")
         break
 
 # import cv2
