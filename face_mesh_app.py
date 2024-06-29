@@ -182,7 +182,7 @@ min_tracking_confidence=0.5
             kpil3_text.write(f"<h1 style='text-align: center; color:red;'>{width*height}</h1>",
                              unsafe_allow_html=True)
 
-        frame = cv.resize(frame,(0,0), fx=0.8, fy=0.8)
-        frame = image_resize(image=frame, width=640)
+        # frame = cv.resize(frame,(0,0), fx=0.8, fy=0.8)
+        # frame = image_resize(image=frame, width=640)
         stframe.image(frame,channels='BGR', use_column_width=True)
 
