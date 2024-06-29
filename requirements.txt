@@ -3,3 +3,4 @@ streamlit
 mediapipe
 Pillow
 numpy
+streamlit-webrtc
