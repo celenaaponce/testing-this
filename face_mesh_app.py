@@ -59,7 +59,7 @@ if True:
         if use_webcam:
             bytes_data = img_file_buffer.getvalue()
             video = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-
+    st.write(type(video))
     height, width, channels = video.shape
     # fps_input = int(video.get(cv.CAP_PROP_FPS))
 
