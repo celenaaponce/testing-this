@@ -1,3 +1,4 @@
+import cv2
 import streamlit as st
 import mediapipe as mp
 import cv2 as cv
@@ -11,6 +12,32 @@ DEMO_VIDEO = 'demo/demo.mp4'
 
 # Basic App Scaffolding
 st.title('Face Mesh App using Streamlit')
+
+## Add Sidebar and Main Window style
+st.markdown(
+    """
+    <style>
+    [data-testid="stSidebar"][aria-expanded="true"] > div:first-child{
+        width: 350px
+    }
+    [data-testid="stSidebar"][aria-expanded="false"] > div:first-child{
+        width: 350px
+        margin-left: -350px
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+## Create Sidebar
+st.sidebar.title('FaceMesh Sidebar')
+st.sidebar.subheader('Parameter')
+
+## Define available pages in selection box
+app_mode = st.sidebar.selectbox(
+    'App Mode',
+    ['About','Image','Video']
+)
 
 # Resize Images to fit Container
 @st.cache()
@@ -39,151 +66,242 @@ def image_resize(image, width=None, height=None, inter=cv.INTER_AREA):
 
     return resized
 
-def calc_bounding_rect(image, landmarks):
-    image_width, image_height = image.shape[1], image.shape[0]
 
-    landmark_array = np.empty((0, 2), int)
+# About Page
 
-    for _, landmark in enumerate(landmarks.landmark):
-        landmark_x = min(int(landmark.x * image_width), image_width - 1)
-        landmark_y = min(int(landmark.y * image_height), image_height - 1)
+if app_mode == 'About':
+    st.markdown('''
+                ## Face Mesh \n
+                In this application we are using **MediaPipe** for creating a Face Mesh. **StreamLit** is to create 
+                the Web Graphical User Interface (GUI) \n
+                
+                - [Github](https://github.com/mpolinowski/streamLit-cv-mediapipe) \n
+    ''')
 
-        landmark_point = [np.array((landmark_x, landmark_y))]
+    ## Add Sidebar and Window style
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"][aria-expanded="true"] > div:first-child{
+            width: 350px
+        }
+        [data-testid="stSidebar"][aria-expanded="false"] > div:first-child{
+            width: 350px
+            margin-left: -350px
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
-        landmark_array = np.append(landmark_array, landmark_point, axis=0)
+# Image Page
 
-    x, y, w, h = cv.boundingRect(landmark_array)
+elif app_mode == 'Image':
+    drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
 
-    return [x, y, x + w, y + h]
-    
-def pre_process_landmark(landmark_list):
-    x_values = [element.x for element in landmark_list]
-    y_values = [element.y for element in landmark_list]
+    st.sidebar.markdown('---')
 
-    # temp_landmark_list = copy.deepcopy(landmark_list)
-    temp_x = copy.deepcopy(x_values)
-    temp_y = copy.deepcopy(y_values)
-    # Convert to relative coordinates
-    base_x, base_y = 0, 0
-    index = 0
-    for _ in len(temp_x),:
-        if index == 0:
-            base_x, base_y = temp_x[index], temp_y[index]         
-        temp_x[index] = temp_x[index] - base_x
-        temp_y[index] = temp_y[index] - base_y
-        index += 1
-    # Convert to a one-dimensional list
- 
-    temp_landmark_list = list(itertools.chain(*zip(temp_x, temp_y))) 
+    ## Add Sidebar and Window style
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"][aria-expanded="true"] > div:first-child{
+            width: 350px
+        }
+        [data-testid="stSidebar"][aria-expanded="false"] > div:first-child{
+            width: 350px
+            margin-left: -350px
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    # Normalization
-    max_value = max(list(map(abs, temp_landmark_list)))
+    st.markdown("**Detected Faces**")
+    kpil_text = st.markdown('0')
 
-    def normalize_(n):
-        return n / max_value
+    max_faces = st.sidebar.number_input('Maximum Number of Faces', value=2, min_value=1)
+    st.sidebar.markdown('---')
 
-    temp_landmark_list = list(map(normalize_, temp_landmark_list))
+    detection_confidence = st.sidebar.slider('Min Detection Confidence', min_value=0.0,max_value=1.0,value=0.5)
+    st.sidebar.markdown('---')
 
-    return temp_landmark_list
+    ## Output
+    st.markdown('## Output')
+    img_file_buffer = st.sidebar.file_uploader("Upload an Image", type=["jpg","jpeg","png"])
+    if img_file_buffer is not None:
+        image = np.array(Image.open(img_file_buffer))
+
+    else:
+        demo_image = DEMO_IMAGE
+        image = np.array(Image.open(demo_image))
+
+    st.sidebar.text('Original Image')
+    st.sidebar.image(image)
+
+    face_count=0
+
+    ## Dashboard
+    with mp.solutions.face_mesh.FaceMesh(
+        static_image_mode=True, #Set of unrelated images
+        max_num_faces=max_faces,
+        min_detection_confidence=detection_confidence
+    ) as face_mesh:
+
+            results = face_mesh.process(image)
+            out_image=image.copy()
+
+            #Face Landmark Drawing
+            for face_landmarks in results.multi_face_landmarks:
+                face_count += 1
+
+                mp.solutions.drawing_utils.draw_landmarks(
+                    image=out_image,
+                    landmark_list=face_landmarks,
+                    connections=mp.solutions.face_mesh.FACEMESH_CONTOURS,
+                    landmark_drawing_spec=drawing_spec
+                )
+
+                kpil_text.write(f"<h1 style='text-align: center; color:red;'>{face_count}</h1>", unsafe_allow_html=True)
+
+            st.subheader('Output Image')
+            st.image(out_image, use_column_width=True)
 
 # Video Page
 
+elif app_mode == 'Video':
 
-st.set_option('deprecation.showfileUploaderEncoding', False)
+    st.set_option('deprecation.showfileUploaderEncoding', False)
 
-use_webcam = True
+    use_webcam = st.sidebar.button('Use Webcam')
+    record = st.sidebar.checkbox("Record Video")
 
-drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
+    if record:
+        st.checkbox('Recording', True)
 
-## Get Video
-stframe = st.empty()
+    drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
 
-video = cv.VideoCapture(0)
+    st.sidebar.markdown('---')
 
-width = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
-height = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
-fps_input = int(video.get(cv.CAP_PROP_FPS))
+    ## Add Sidebar and Window style
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"][aria-expanded="true"] > div:first-child{
+            width: 350px
+        }
+        [data-testid="stSidebar"][aria-expanded="false"] > div:first-child{
+            width: 350px
+            margin-left: -350px
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
-fps = 0
-i = 0
+    max_faces = st.sidebar.number_input('Maximum Number of Faces', value=5, min_value=1)
+    st.sidebar.markdown('---')
+    detection_confidence = st.sidebar.slider('Min Detection Confidence', min_value=0.0,max_value=1.0,value=0.5)
+    tracking_confidence = st.sidebar.slider('Min Tracking Confidence', min_value=0.0,max_value=1.0,value=0.5)
+    st.sidebar.markdown('---')
 
-kpil, kpil2, kpil3 = st.columns(3)
+    ## Get Video
+    stframe = st.empty()
+    video_file_buffer = st.sidebar.file_uploader("Upload a Video", type=['mp4', 'mov', 'avi', 'asf', 'm4v'])
+    temp_file = tempfile.NamedTemporaryFile(delete=False)
 
-with kpil:
-    st.markdown('**Word**')
-    kpil_text = st.markdown('0')
+    if not video_file_buffer:
+        if use_webcam:
+            video = cv.VideoCapture(0)
+        else:
+            video = cv.VideoCapture(DEMO_VIDEO)
+            temp_file.name = DEMO_VIDEO
 
-with kpil2:
-    st.markdown('**Correct Signs**')
-    kpil2_text = st.markdown('0')
+    else:
+        temp_file.write(video_file_buffer.read())
+        video = cv.VideoCapture(temp_file.name)
 
-dominant_hand = 'LEFT'
-st.markdown('<hr/>', unsafe_allow_html=True)
+    width = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
+    height = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
+    fps_input = int(video.get(cv.CAP_PROP_FPS))
 
+    ## Recording
+    codec = cv.VideoWriter_fourcc('a','v','c','1')
+    out = cv.VideoWriter('output1.mp4', codec, fps_input, (width,height))
 
-pre_processed_landmark_list = None
-tagged_signs = []
-success = False
-after_success = 0
-hand_sign_id = 1
-## Face Mesh
-with mp.solutions.holistic.Holistic(
-min_detection_confidence=0.7,
-min_tracking_confidence=0.5
-) as holistic:
+    st.sidebar.text('Input Video')
+    st.sidebar.video(temp_file.name)
 
-        prevTime = 0
+    fps = 0
+    i = 0
 
-        while video.isOpened():
-            i +=1
-            ret, frame = video.read()
-            if not ret:
-                continue
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            stframe.image(frame,channels="RGB")
-            results = holistic.process(frame)
-            frame.flags.writeable = True
-            left_present = dominant_hand == 'LEFT' and results.left_hand_landmarks is not None
-            right_present = dominant_hand == 'RIGHT' and results.right_hand_landmarks is not None
-            face_count = 0
-            if results.pose_landmarks is not None and left_present or right_present and not success:
+    drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
 
-                #Face Landmark Drawing
-                for face_landmarks in results.pose_landmarks.landmark:
+    kpil, kpil2, kpil3 = st.columns(3)
 
-                    mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp.solutions.holistic.POSE_CONNECTIONS, 
-                            mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
-                            mp.solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
-                            )
-                    if results.left_hand_landmarks:
-                    #left eye edge to thumb tip distance
-                        x_distance = abs(results.pose_landmarks.landmark[3].x - results.left_hand_landmarks.landmark[4].x)
-                        y_distance = abs(results.pose_landmarks.landmark[3].y - results.left_hand_landmarks.landmark[4].y)
-                        brect = calc_bounding_rect(frame, results.left_hand_landmarks)
-                        pre_processed_landmark_list = pre_process_landmark(
-                            results.left_hand_landmarks.landmark)
-                        #Face Landmark Drawing
-                        for face_landmarks in results.left_hand_landmarks.landmark:
-    
-                            mp.solutions.drawing_utils.draw_landmarks(frame, results.left_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS, 
-                                    mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
-                                    mp.solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
-                                    ) 
+    with kpil:
+        st.markdown('**Frame Rate**')
+        kpil_text = st.markdown('0')
 
+    with kpil2:
+        st.markdown('**Detected Faces**')
+        kpil2_text = st.markdown('0')
+
+    with kpil3:
+        st.markdown('**Image Resolution**')
+        kpil3_text = st.markdown('0')
+
+    st.markdown('<hr/>', unsafe_allow_html=True)
 
 
-            # FPS Counter
-            currTime = time.time()
-            fps = 1/(currTime - prevTime)
-            prevTime = currTime
+    ## Face Mesh
+    with mp.solutions.face_mesh.FaceMesh(
+        max_num_faces=max_faces,
+        min_detection_confidence=detection_confidence,
+        min_tracking_confidence=tracking_confidence
 
-            # Dashboard
-            kpil_text.write(f"<h1 style='text-align: center; color:red;'>{int(fps)}</h1>", unsafe_allow_html=True)
-            kpil2_text.write(f"<h1 style='text-align: center; color:red;'>{face_count}</h1>", unsafe_allow_html=True)
-            kpil3_text.write(f"<h1 style='text-align: center; color:red;'>{width*height}</h1>",
-                             unsafe_allow_html=True)
+    ) as face_mesh:
 
-        frame = cv.resize(frame,(0,0), fx=0.8, fy=0.8)
-        frame = image_resize(image=frame, width=640)
-        stframe.image(frame,channels='BGR', use_column_width=True)
+            prevTime = 0
 
+            while video.isOpened():
+                i +=1
+                ret, frame = video.read()
+                if not ret:
+                    continue
+
+                results = face_mesh.process(frame)
+                frame.flags.writeable = True
+
+                face_count = 0
+                if results.multi_face_landmarks:
+
+                    #Face Landmark Drawing
+                    for face_landmarks in results.multi_face_landmarks:
+                        face_count += 1
+
+                        mp.solutions.drawing_utils.draw_landmarks(
+                            image=frame,
+                            landmark_list=face_landmarks,
+                            connections=mp.solutions.face_mesh.FACEMESH_CONTOURS,
+                            landmark_drawing_spec=drawing_spec,
+                            connection_drawing_spec=drawing_spec
+                        )
+
+                # FPS Counter
+                currTime = time.time()
+                fps = 1/(currTime - prevTime)
+                prevTime = currTime
+
+                if record:
+                    out.write(frame)
+
+                # Dashboard
+                kpil_text.write(f"<h1 style='text-align: center; color:red;'>{int(fps)}</h1>", unsafe_allow_html=True)
+                kpil2_text.write(f"<h1 style='text-align: center; color:red;'>{face_count}</h1>", unsafe_allow_html=True)
+                kpil3_text.write(f"<h1 style='text-align: center; color:red;'>{width*height}</h1>",
+                                 unsafe_allow_html=True)
+
+                frame = cv.resize(frame,(0,0), fx=0.8, fy=0.8)
+                frame = image_resize(image=frame, width=640)
+                stframe.image(frame,channels='BGR', use_column_width=True)
