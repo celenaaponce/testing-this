@@ -103,6 +103,10 @@ video = cv.VideoCapture(0)
 width = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
 height = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
 fps_input = int(video.get(cv.CAP_PROP_FPS))
+ret, frame = video.read()
+frame = cv.resize(frame,(0,0), fx=0.8, fy=0.8)
+frame = image_resize(image=frame, width=640)
+stframe.image(frame,channels='BGR', use_column_width=True)
 st.write(width, height, fps_input)
 fps = 0
 i = 0
