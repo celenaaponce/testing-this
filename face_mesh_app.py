@@ -90,8 +90,10 @@ if True:
             prevTime = 0
 
             while img_file_buffer is not None:
+                st.write('here')
                 i +=1
                 ret, frame = cv2_img.read()
+                st.write(cv2_img.shape)
                 if not ret:
                     continue
 
