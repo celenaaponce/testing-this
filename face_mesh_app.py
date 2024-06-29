@@ -60,19 +60,7 @@ if True:
     # To read image file buffer with OpenCV:
         bytes_data = img_file_buffer.getvalue()
         cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-        st.write(type(cv2_img))
 
-    # fps_input = int(video.get(cv.CAP_PROP_FPS))
-
-    # ## Recording
-    # codec = cv.VideoWriter_fourcc('a','v','c','1')
-    # out = cv.VideoWriter('output1.mp4', codec, fps_input, (width,height))
-
-    # st.sidebar.text('Input Video')
-    # st.sidebar.video(temp_file.name)
-
-    # fps = 0
-    # i = 0
 
     drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
 
@@ -95,17 +83,17 @@ if True:
 
     ## Face Mesh
     with mp.solutions.face_mesh.FaceMesh(
-        max_num_faces=max_faces,
-        min_detection_confidence=detection_confidence,
-        min_tracking_confidence=tracking_confidence
+        max_num_faces=1,
+        min_detection_confidence=0.7,
+        min_tracking_confidence=0.5
 
     ) as face_mesh:
 
             prevTime = 0
 
-            while video.isOpened():
+            while img_file_buffer is not None:
                 i +=1
-                ret, frame = video.read()
+                ret, frame = cv2_img.read()
                 if not ret:
                     continue
 
