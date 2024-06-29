@@ -82,12 +82,10 @@ if True:
 
 
     ## Face Mesh
-    with mp.solutions.face_mesh.FaceMesh(
-        max_num_faces=1,
-        min_detection_confidence=0.7,
-        min_tracking_confidence=0.5
-
-    ) as face_mesh:
+    with solutions.holistic.Holistic(
+    min_detection_confidence=0.7,
+    min_tracking_confidence=0.5
+    ) as holistic:
 
             prevTime = 0
 
@@ -97,23 +95,21 @@ if True:
                 if not ret:
                     continue
 
-                results = face_mesh.process(frame)
+                results = holistic.process(frame)
                 frame.flags.writeable = True
-
+                left_present = dominant_hand == 'LEFT' and results.left_hand_landmarks is not None
+                right_present = dominant_hand == 'RIGHT' and results.right_hand_landmarks is not None
                 face_count = 0
-                if results.multi_face_landmarks:
-
+                if results.pose_landmarks is not None and left_present or right_present and not success:
+    
                     #Face Landmark Drawing
-                    for face_landmarks in results.multi_face_landmarks:
-                        face_count += 1
+                    for face_landmarks in results.pose_landmarks.landmark:
+    
+                        solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, solutions.holistic.POSE_CONNECTIONS, 
+                                solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
+                                solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
+                                ) 
 
-                        mp.solutions.drawing_utils.draw_landmarks(
-                            image=frame,
-                            landmark_list=face_landmarks,
-                            connections=mp.solutions.face_mesh.FACEMESH_CONTOURS,
-                            landmark_drawing_spec=drawing_spec,
-                            connection_drawing_spec=drawing_spec
-                        )
 
                 # FPS Counter
                 currTime = time.time()
