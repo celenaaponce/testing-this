@@ -40,6 +40,52 @@ def image_resize(image, width=None, height=None, inter=cv.INTER_AREA):
 
     return resized
 
+def calc_bounding_rect(image, landmarks):
+    image_width, image_height = image.shape[1], image.shape[0]
+
+    landmark_array = np.empty((0, 2), int)
+
+    for _, landmark in enumerate(landmarks.landmark):
+        landmark_x = min(int(landmark.x * image_width), image_width - 1)
+        landmark_y = min(int(landmark.y * image_height), image_height - 1)
+
+        landmark_point = [np.array((landmark_x, landmark_y))]
+
+        landmark_array = np.append(landmark_array, landmark_point, axis=0)
+
+    x, y, w, h = cv.boundingRect(landmark_array)
+
+    return [x, y, x + w, y + h]
+def pre_process_landmark(landmark_list):
+    x_values = [element.x for element in landmark_list]
+    y_values = [element.y for element in landmark_list]
+
+    # temp_landmark_list = copy.deepcopy(landmark_list)
+    temp_x = copy.deepcopy(x_values)
+    temp_y = copy.deepcopy(y_values)
+    # Convert to relative coordinates
+    base_x, base_y = 0, 0
+    index = 0
+    for _ in len(temp_x),:
+        if index == 0:
+            base_x, base_y = temp_x[index], temp_y[index]         
+        temp_x[index] = temp_x[index] - base_x
+        temp_y[index] = temp_y[index] - base_y
+        index += 1
+    # Convert to a one-dimensional list
+ 
+    temp_landmark_list = list(itertools.chain(*zip(temp_x, temp_y))) 
+
+    # Normalization
+    max_value = max(list(map(abs, temp_landmark_list)))
+
+    def normalize_(n):
+        return n / max_value
+
+    temp_landmark_list = list(map(normalize_, temp_landmark_list))
+
+    return temp_landmark_list
+
 # Video Page
 
 
@@ -104,10 +150,25 @@ min_tracking_confidence=0.5
                 #Face Landmark Drawing
                 for face_landmarks in results.pose_landmarks.landmark:
 
-                    solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, solutions.holistic.POSE_CONNECTIONS, 
-                            solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
-                            solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
-                            ) 
+                    mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp.solutions.holistic.POSE_CONNECTIONS, 
+                            mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
+                            mp.solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
+                            )
+                    if results.left_hand_landmarks:
+                    #left eye edge to thumb tip distance
+                        x_distance = abs(results.pose_landmarks.landmark[3].x - results.left_hand_landmarks.landmark[4].x)
+                        y_distance = abs(results.pose_landmarks.landmark[3].y - results.left_hand_landmarks.landmark[4].y)
+                        brect = calc_bounding_rect(frame, results.left_hand_landmarks)
+                        pre_processed_landmark_list = pre_process_landmark(
+                            results.left_hand_landmarks.landmark)
+                        #Face Landmark Drawing
+                        for face_landmarks in results.left_hand_landmarks.landmark:
+    
+                            solutions.drawing_utils.draw_landmarks(frame, results.left_hand_landmarks, solutions.holistic.HAND_CONNECTIONS, 
+                                    solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
+                                    solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
+                                    ) 
+
 
 
             # FPS Counter
