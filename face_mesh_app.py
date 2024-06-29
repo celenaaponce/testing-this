@@ -1,4 +1,3 @@
-import cv2
 import streamlit as st
 import mediapipe as mp
 import cv2 as cv
@@ -56,6 +55,7 @@ def calc_bounding_rect(image, landmarks):
     x, y, w, h = cv.boundingRect(landmark_array)
 
     return [x, y, x + w, y + h]
+    
 def pre_process_landmark(landmark_list):
     x_values = [element.x for element in landmark_list]
     y_values = [element.y for element in landmark_list]
