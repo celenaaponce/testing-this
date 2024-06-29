@@ -6,7 +6,6 @@ from streamlit_webrtc import WebRtcMode, webrtc_streamer
 webrtc_ctx = webrtc_streamer(
     key="video-sendonly",
     mode=WebRtcMode.SENDONLY,
-    rtc_configuration={"iceServers": get_ice_servers()},
     media_stream_constraints={"video": True},
 )
 
