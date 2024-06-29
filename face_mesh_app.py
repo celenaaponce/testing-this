@@ -55,7 +55,7 @@ if True:
     # video_file_buffer = st.sidebar.file_uploader("Upload a Video", type=['mp4', 'mov', 'avi', 'asf', 'm4v'])
     # temp_file = tempfile.NamedTemporaryFile(delete=False)
     img_file_buffer = st.camera_input("Take a picture")
-
+    print('none', img_file_buffer == None)
     if img_file_buffer is not None:
     # To read image file buffer with OpenCV:
         bytes_data = img_file_buffer.getvalue()
