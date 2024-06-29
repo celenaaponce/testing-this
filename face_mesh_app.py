@@ -216,19 +216,19 @@ elif app_mode == 'Video':
             video = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
 
 
-    width = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
-    height = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
-    fps_input = int(video.get(cv.CAP_PROP_FPS))
+    # width = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
+    # height = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
+    # fps_input = int(video.get(cv.CAP_PROP_FPS))
 
-    ## Recording
-    codec = cv.VideoWriter_fourcc('a','v','c','1')
-    out = cv.VideoWriter('output1.mp4', codec, fps_input, (width,height))
+    # ## Recording
+    # codec = cv.VideoWriter_fourcc('a','v','c','1')
+    # out = cv.VideoWriter('output1.mp4', codec, fps_input, (width,height))
 
-    st.sidebar.text('Input Video')
-    st.sidebar.video(temp_file.name)
+    # st.sidebar.text('Input Video')
+    # st.sidebar.video(temp_file.name)
 
-    fps = 0
-    i = 0
+    # fps = 0
+    # i = 0
 
     drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
 
