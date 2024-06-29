@@ -3,6 +3,7 @@ from streamlit_webrtc import webrtc_streamer
 import av
 def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     image = frame.to_ndarray(format="bgr24")
+    st.write(image)
 
     # Run inference
     # blob = cv2.dnn.blobFromImage(
