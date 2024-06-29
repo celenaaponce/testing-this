@@ -99,11 +99,11 @@ drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius
 stframe = st.empty()
 
 video = cv.VideoCapture(0)
-ret, frame = video.read()
+
 width = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
 height = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
 fps_input = int(video.get(cv.CAP_PROP_FPS))
-
+st.write(width, height, fps_input)
 fps = 0
 i = 0
 
@@ -182,7 +182,7 @@ min_tracking_confidence=0.5
             kpil3_text.write(f"<h1 style='text-align: center; color:red;'>{width*height}</h1>",
                              unsafe_allow_html=True)
 
-        # frame = cv.resize(frame,(0,0), fx=0.8, fy=0.8)
-        # frame = image_resize(image=frame, width=640)
+        frame = cv.resize(frame,(0,0), fx=0.8, fy=0.8)
+        frame = image_resize(image=frame, width=640)
         stframe.image(frame,channels='BGR', use_column_width=True)
 
