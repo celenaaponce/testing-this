@@ -1,6 +1,8 @@
 import streamlit as st
 from streamlit_webrtc import webrtc_streamer
 import av
+from streamlit_webrtc import WebRtcMode, webrtc_streamer
+
 def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     image = frame.to_ndarray(format="bgr24")
     st.write(image)
@@ -51,6 +53,7 @@ st.title("OpenCV Filters on Video Stream")
 
 webrtc_ctx = webrtc_streamer(
     key="object-detection",
+    mode=WebRtcMode.SENDRECV,
     video_frame_callback=video_frame_callback,
     media_stream_constraints={"video": True, "audio": False},
     async_processing=True,
