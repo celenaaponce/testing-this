@@ -47,7 +47,7 @@ st.set_option('deprecation.showfileUploaderEncoding', False)
 
 use_webcam = True
 
-drawing_spec = solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
+drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
 
 ## Get Video
 stframe = st.empty()
