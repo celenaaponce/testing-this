@@ -99,7 +99,7 @@ drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius
 stframe = st.empty()
 
 video = cv.VideoCapture(0)
-
+ret, frame = video.read()
 width = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
 height = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
 fps_input = int(video.get(cv.CAP_PROP_FPS))
