@@ -16,7 +16,7 @@ while True:
         try:
             video_frame = webrtc_ctx.video_receiver.get_frame(timeout=1)
         except queue.Empty:
-            logger.warning("Queue is empty. Abort.")
+            st.write('none')
             break
 
         img_rgb = video_frame.to_ndarray(format="rgb24")
