@@ -55,10 +55,9 @@ if True:
     # video_file_buffer = st.sidebar.file_uploader("Upload a Video", type=['mp4', 'mov', 'avi', 'asf', 'm4v'])
     # temp_file = tempfile.NamedTemporaryFile(delete=False)
     img_file_buffer = st.camera_input("Take a picture")
-    if img_file_buffer:
-        if use_webcam:
-            bytes_data = img_file_buffer.getvalue()
-            video = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+
+    bytes_data = img_file_buffer.getvalue()
+    video = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
     st.write(type(video))
     height, width, channels = video.shape
     # fps_input = int(video.get(cv.CAP_PROP_FPS))
