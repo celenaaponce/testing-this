@@ -47,36 +47,8 @@ if True:
     st.set_option('deprecation.showfileUploaderEncoding', False)
 
     use_webcam = st.sidebar.button('Use Webcam')
-    record = st.sidebar.checkbox("Record Video")
-
-    if record:
-        st.checkbox('Recording', True)
 
     drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
-
-    st.sidebar.markdown('---')
-
-    ## Add Sidebar and Window style
-    st.markdown(
-        """
-        <style>
-        [data-testid="stSidebar"][aria-expanded="true"] > div:first-child{
-            width: 350px
-        }
-        [data-testid="stSidebar"][aria-expanded="false"] > div:first-child{
-            width: 350px
-            margin-left: -350px
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    max_faces = st.sidebar.number_input('Maximum Number of Faces', value=5, min_value=1)
-    st.sidebar.markdown('---')
-    detection_confidence = st.sidebar.slider('Min Detection Confidence', min_value=0.0,max_value=1.0,value=0.5)
-    tracking_confidence = st.sidebar.slider('Min Tracking Confidence', min_value=0.0,max_value=1.0,value=0.5)
-    st.sidebar.markdown('---')
 
     ## Get Video
     stframe = st.empty()
