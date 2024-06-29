@@ -82,7 +82,7 @@ if True:
 
 
     ## Face Mesh
-    with solutions.holistic.Holistic(
+    with mp.solutions.holistic.Holistic(
     min_detection_confidence=0.7,
     min_tracking_confidence=0.5
     ) as holistic:
