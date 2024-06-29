@@ -103,12 +103,7 @@ video = cv.VideoCapture(0)
 width = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
 height = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
 fps_input = int(video.get(cv.CAP_PROP_FPS))
-ret, frame = video.read()
-st.write(frame)
-frame = cv.resize(frame,(0,0), fx=0.8, fy=0.8)
-frame = image_resize(image=frame, width=640)
-stframe.image(frame,channels='BGR', use_column_width=True)
-st.write(width, height, fps_input)
+
 fps = 0
 i = 0
 
@@ -144,7 +139,8 @@ min_tracking_confidence=0.5
             ret, frame = video.read()
             if not ret:
                 continue
-
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            stframe.image(frame,channels="RGB")
             results = holistic.process(frame)
             frame.flags.writeable = True
             left_present = dominant_hand == 'LEFT' and results.left_hand_landmarks is not None
