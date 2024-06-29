@@ -207,19 +207,14 @@ elif app_mode == 'Video':
 
     ## Get Video
     stframe = st.empty()
-    video_file_buffer = st.sidebar.file_uploader("Upload a Video", type=['mp4', 'mov', 'avi', 'asf', 'm4v'])
-    temp_file = tempfile.NamedTemporaryFile(delete=False)
-
-    if not video_file_buffer:
+    # video_file_buffer = st.sidebar.file_uploader("Upload a Video", type=['mp4', 'mov', 'avi', 'asf', 'm4v'])
+    # temp_file = tempfile.NamedTemporaryFile(delete=False)
+    img_file_buffer = st.camera_input("Take a picture")
+    if img_file_buffer:
         if use_webcam:
-            video = cv.VideoCapture(0)
-        else:
-            video = cv.VideoCapture(DEMO_VIDEO)
-            temp_file.name = DEMO_VIDEO
+            bytes_data = img_file_buffer.getvalue()
+            video = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
 
-    else:
-        temp_file.write(video_file_buffer.read())
-        video = cv.VideoCapture(temp_file.name)
 
     width = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
     height = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
