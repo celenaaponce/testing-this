@@ -164,9 +164,9 @@ min_tracking_confidence=0.5
                         #Face Landmark Drawing
                         for face_landmarks in results.left_hand_landmarks.landmark:
     
-                            solutions.drawing_utils.draw_landmarks(frame, results.left_hand_landmarks, solutions.holistic.HAND_CONNECTIONS, 
-                                    solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
-                                    solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
+                            mp.solutions.drawing_utils.draw_landmarks(frame, results.left_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS, 
+                                    mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
+                                    mp.solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
                                     ) 
 
 
