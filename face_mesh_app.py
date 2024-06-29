@@ -64,33 +64,33 @@ i = 0
 kpil, kpil2, kpil3 = st.columns(3)
 
 with kpil:
-    st.markdown('**Frame Rate**')
+    st.markdown('**Word**')
     kpil_text = st.markdown('0')
 
 with kpil2:
-    st.markdown('**Detected Faces**')
+    st.markdown('**Correct Signs**')
     kpil2_text = st.markdown('0')
 
-with kpil3:
-    st.markdown('**Image Resolution**')
-    kpil3_text = st.markdown('0')
-
+dominant_hand = 'LEFT'
 st.markdown('<hr/>', unsafe_allow_html=True)
 
 
+pre_processed_landmark_list = None
+tagged_signs = []
+success = False
+after_success = 0
+hand_sign_id = 1
 ## Face Mesh
-with mp.solutions.holistic.Holistic(
+with solutions.holistic.Holistic(
 min_detection_confidence=0.7,
 min_tracking_confidence=0.5
 ) as holistic:
 
         prevTime = 0
 
-        while img_file_buffer is not None:
-            st.write('here')
+        while video.isOpened():
             i +=1
-            ret, frame = cv2_img.read()
-            st.write(cv2_img.shape)
+            ret, frame = video.read()
             if not ret:
                 continue
 
@@ -114,9 +114,6 @@ min_tracking_confidence=0.5
             currTime = time.time()
             fps = 1/(currTime - prevTime)
             prevTime = currTime
-
-            if record:
-                out.write(frame)
 
             # Dashboard
             kpil_text.write(f"<h1 style='text-align: center; color:red;'>{int(fps)}</h1>", unsafe_allow_html=True)
