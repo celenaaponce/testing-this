@@ -50,9 +50,6 @@ def image_resize(image, width=None, height=None, inter=cv.INTER_AREA):
 
     return resized
 # Video Page
-
-
-
 st.set_option('deprecation.showfileUploaderEncoding', False)
 
 drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
@@ -72,6 +69,7 @@ if webrtc_ctx.video_receiver:
     width = int(webrtc_ctx.get(cv.CAP_PROP_FRAME_WIDTH))
     height = int(webrtc_ctx.get(cv.CAP_PROP_FRAME_HEIGHT))
     fps_input = int(webrtc_ctx.get(cv.CAP_PROP_FPS))
+    st.write(width, height, fps_input)
 
     drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
 
