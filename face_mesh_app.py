@@ -5,7 +5,11 @@ import streamlit as st
 from matplotlib import pyplot as plt
 
 from streamlit_webrtc import webrtc_streamer
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
+logger.debug(f"Socket: {self._sock}, Transport: {self.transport}, Loop: {self._loop}")
 lock = threading.Lock()
 img_container = {"img": None}
 
