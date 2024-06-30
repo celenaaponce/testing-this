@@ -84,59 +84,56 @@ def video_frame_callback(frame):
         prevTime = 0
 
         results = holistic.process(img)
-        return results
-        frame.flags.writeable = True
+        img.flags.writeable = True
         left_present = dominant_hand == 'LEFT' and results.left_hand_landmarks is not None
         right_present = dominant_hand == 'RIGHT' and results.right_hand_landmarks is not None
         face_count = 0
-        st.write(results)
         if results.pose_landmarks is not None and left_present or right_present and not success:
 
             #Face Landmark Drawing
             for face_landmarks in results.pose_landmarks.landmark:
 
-                solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, solutions.holistic.POSE_CONNECTIONS, 
-                        solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
-                        solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
+                mp.solutions.drawing_utils.draw_landmarks(img, results.pose_landmarks, mp.solutions.holistic.POSE_CONNECTIONS, 
+                        mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
+                        mp.solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
                         ) 
-        #     if results.left_hand_landmarks:
-        #     #left eye edge to thumb tip distance
-        #         x_distance = abs(results.pose_landmarks.landmark[3].x - results.left_hand_landmarks.landmark[4].x)
-        #         y_distance = abs(results.pose_landmarks.landmark[3].y - results.left_hand_landmarks.landmark[4].y)
-        #         brect = calc_bounding_rect(frame, results.left_hand_landmarks)
+            if results.left_hand_landmarks:
+            #left eye edge to thumb tip distance
+                x_distance = abs(results.pose_landmarks.landmark[3].x - results.left_hand_landmarks.landmark[4].x)
+                y_distance = abs(results.pose_landmarks.landmark[3].y - results.left_hand_landmarks.landmark[4].y)
+                brect = calc_bounding_rect(img, results.left_hand_landmarks)
+                pre_processed_landmark_list = pre_process_landmark(
+                    results.left_hand_landmarks.landmark)
+                #Face Landmark Drawing
+                for face_landmarks in results.left_hand_landmarks.landmark:
+
+                    mp.solutions.drawing_utils.draw_landmarks(img, results.left_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS, 
+                            mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
+                            mp.solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
+                            ) 
+        #     if results.right_hand_landmarks:
+            #right eye edge to thumb tip distance
+        #         x_distance = abs(results.pose_landmarks.landmark[6].x - results.right_hand_landmarks.landmark[4].x)
+        #         y_distance = abs(results.pose_landmarks.landmark[6].y - results.right_hand_landmarks.landmark[4].y)
+        #         brect = calc_bounding_rect(frame, results.right_hand_landmarks)
         #         pre_processed_landmark_list = pre_process_landmark(
-        #             results.left_hand_landmarks.landmark)
+        #             results.right_hand_landmarks.landmark)
         #         #Face Landmark Drawing
-        #         for face_landmarks in results.left_hand_landmarks.landmark:
+        #         for face_landmarks in results.right_hand_landmarks.landmark:
 
-        #             solutions.drawing_utils.draw_landmarks(frame, results.left_hand_landmarks, solutions.holistic.HAND_CONNECTIONS, 
-        #                     solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
-        #                     solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
+        #             mp.solutions.drawing_utils.draw_landmarks(frame, results.right_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS, 
+        #                     mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
+        #                     mp.solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
         #                     ) 
-        # #     if results.right_hand_landmarks:
-        # #     #right eye edge to thumb tip distance
-        # #         x_distance = abs(results.pose_landmarks.landmark[6].x - results.right_hand_landmarks.landmark[4].x)
-        # #         y_distance = abs(results.pose_landmarks.landmark[6].y - results.right_hand_landmarks.landmark[4].y)
-        # #         brect = calc_bounding_rect(frame, results.right_hand_landmarks)
-        # #         pre_processed_landmark_list = pre_process_landmark(
-        # #             results.right_hand_landmarks.landmark)
-        # #         #Face Landmark Drawing
-        # #         for face_landmarks in results.right_hand_landmarks.landmark:
-
-        # #             mp.solutions.drawing_utils.draw_landmarks(frame, results.right_hand_landmarks, mp.solutions.holistic.HAND_CONNECTIONS, 
-        # #                     mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
-        # #                     mp.solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
-        # #                     ) 
-        #     pre_processed_face_landmark_list = pre_process_landmark(
-        #     results.pose_landmarks.landmark)[:12]
-        #     total_list = pre_processed_landmark_list + pre_processed_face_landmark_list + [x_distance, y_distance]
+            pre_processed_face_landmark_list = pre_process_landmark(results.pose_landmarks.landmark)[:12]
+            total_list = pre_processed_landmark_list + pre_processed_face_landmark_list + [x_distance, y_distance]
         #     hand_sign_id = keypoint_classifier(total_list)
         #     tagged_signs.append(hand_sign_id)
         #     if len(tagged_signs) > 30 and tagged_signs.count(0) > 15 and not success:
         #         after_success += 1
         #         success = True
 
-        # # Dashboard
+        # Dashboard
         # if hand_sign_id == 0:
         #     output_text = 'Horse 🐴'
         # else:
@@ -145,8 +142,9 @@ def video_frame_callback(frame):
         # if success:
         #     kpil2_text.write(f"<h1 style='text-align: center; color:green;'>Great Job</h1>", unsafe_allow_html=True)
         #     st.balloons()
-        # frame = cv.resize(frame,(0,0), fx=0.8, fy=0.8)
-        # frame = image_resize(image=frame, width=640)
+        img = cv.resize(img,(0,0), fx=0.8, fy=0.8)
+        img = image_resize(image=img, width=640)
+        return av.VideoFrame.from_ndarray(img, format="bgr24")
         # stframe.image(frame,channels='BGR', use_column_width=True)
 
 
