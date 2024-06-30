@@ -1,29 +1,33 @@
-import streamlit as st
 from streamlit_webrtc import webrtc_streamer
-import av
-from streamlit_webrtc import WebRtcMode, webrtc_streamer
-import queue
-webrtc_ctx = webrtc_streamer(
-    key="video-sendonly",
-    mode=WebRtcMode.SENDONLY,
-    media_stream_constraints={"video": True},
-)
 
-image_place = st.empty()
+webrtc_streamer(key="sample")
 
-while True:
-    if webrtc_ctx.video_receiver:
-        try:
-            video_frame = webrtc_ctx.video_receiver.get_frame(timeout=1)
-        except queue.Empty:
-            st.write('none')
-            break
+# import streamlit as st
+# from streamlit_webrtc import webrtc_streamer
+# import av
+# from streamlit_webrtc import WebRtcMode, webrtc_streamer
+# import queue
+# webrtc_ctx = webrtc_streamer(
+#     key="video-sendonly",
+#     mode=WebRtcMode.SENDONLY,
+#     media_stream_constraints={"video": True},
+# )
 
-        img_rgb = video_frame.to_ndarray(format="rgb24")
-        image_place.image(img_rgb)
-    else:
-        st.write("AudioReciver is not set. Abort.")
-        break
+# image_place = st.empty()
+
+# while True:
+#     if webrtc_ctx.video_receiver:
+#         try:
+#             video_frame = webrtc_ctx.video_receiver.get_frame(timeout=1)
+#         except queue.Empty:
+#             st.write('none')
+#             break
+
+#         img_rgb = video_frame.to_ndarray(format="rgb24")
+#         image_place.image(img_rgb)
+#     else:
+#         st.write("AudioReciver is not set. Abort.")
+#         break
 
 # import cv2
 # import streamlit as st
