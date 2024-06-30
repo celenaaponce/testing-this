@@ -1,7 +1,29 @@
+import logging
+import streamlit as st
 from streamlit_webrtc import webrtc_streamer
 
-webrtc_streamer(key="sample")
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
+def main():
+    st.header("WebRTC Streamer Example")
+
+    try:
+        webrtc_ctx = webrtc_streamer(key="sample")
+
+        # Additional debugging information
+        if webrtc_ctx.state.playing:
+            logger.debug("WebRTC streaming is active.")
+        else:
+            logger.debug("WebRTC streaming is inactive.")
+
+    except Exception as e:
+        logger.error("Error in WebRTC streamer: %s", e, exc_info=True)
+        st.error("An error occurred in the WebRTC streamer.")
+
+if __name__ == "__main__":
+    main()
 
 # import streamlit as st
 # from streamlit_webrtc import webrtc_streamer
