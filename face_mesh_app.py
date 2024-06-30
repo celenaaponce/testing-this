@@ -27,51 +27,28 @@ dominant_hand = 'LEFT'
 class HolisticResult(NamedTuple):
     landmarks: np.ndarray
     # Add other attributes as needed
-
-def calc_bounding_rect(image, landmarks):
-    image_width, image_height = image.shape[1], image.shape[0]
-
-    landmark_array = np.empty((0, 2), int)
-
-    for _, landmark in enumerate(landmarks.landmark):
-        landmark_x = min(int(landmark.x * image_width), image_width - 1)
-        landmark_y = min(int(landmark.y * image_height), image_height - 1)
-
-        landmark_point = [np.array((landmark_x, landmark_y))]
-
-        landmark_array = np.append(landmark_array, landmark_point, axis=0)
-
-    x, y, w, h = cv.boundingRect(landmark_array)
-
-    return [x, y, x + w, y + h]
     
-def pre_process_landmark(landmark_list):
+def pre_process_landmark(landmark_list: List):
+    # Extract x and y values directly
     x_values = [element.x for element in landmark_list]
     y_values = [element.y for element in landmark_list]
 
-    # temp_landmark_list = copy.deepcopy(landmark_list)
-    temp_x = copy.deepcopy(x_values)
-    temp_y = copy.deepcopy(y_values)
-    # Convert to relative coordinates
-    base_x, base_y = 0, 0
-    index = 0
-    for _ in len(temp_x),:
-        if index == 0:
-            base_x, base_y = temp_x[index], temp_y[index]         
-        temp_x[index] = temp_x[index] - base_x
-        temp_y[index] = temp_y[index] - base_y
-        index += 1
-    # Convert to a one-dimensional list
- 
-    temp_landmark_list = list(itertools.chain(*zip(temp_x, temp_y))) 
+    # Initialize base coordinates
+    base_x, base_y = x_values[0], y_values[0]
 
-    # Normalization
-    max_value = max(list(map(abs, temp_landmark_list)))
+    # Convert to relative coordinates and normalize in one go
+    temp_landmark_list = []
+    for x, y in zip(x_values, y_values):
+        rel_x = x - base_x
+        rel_y = y - base_y
+        temp_landmark_list.append(rel_x)
+        temp_landmark_list.append(rel_y)
 
-    def normalize_(n):
-        return n / max_value
+    # Find the maximum absolute value for normalization
+    max_value = max(map(abs, temp_landmark_list))
 
-    temp_landmark_list = list(map(normalize_, temp_landmark_list))
+    if max_value != 0:
+        temp_landmark_list = [val / max_value for val in temp_landmark_list]
 
     return temp_landmark_list
 
@@ -103,9 +80,7 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     #left eye edge to thumb tip distance
         x_distance = abs(results.pose_landmarks.landmark[3].x - results.left_hand_landmarks.landmark[4].x)
         y_distance = abs(results.pose_landmarks.landmark[3].y - results.left_hand_landmarks.landmark[4].y)
-        brect = calc_bounding_rect(frame, results.left_hand_landmarks)
-        pre_processed_landmark_list = pre_process_landmark(
-            results.left_hand_landmarks.landmark)  
+        pre_processed_landmark_list = pre_process_landmark(results.left_hand_landmarks.landmark)  
     # Draw landmarks on the image
     mp.solutions.drawing_utils.draw_landmarks(
         image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
