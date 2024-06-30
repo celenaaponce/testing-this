@@ -3,6 +3,6 @@ streamlit
 mediapipe
 Pillow
 numpy
-streamlit-webrt
+streamlit-webrtc
 aioice
 asyncio
