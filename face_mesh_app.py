@@ -49,7 +49,11 @@ def image_resize(image, width=None, height=None, inter=cv.INTER_AREA):
     return resized
 
 def video_frame_callback(frame):
-    st.write('here')
+    img = frame.to_ndarray(format="bgr24")
+
+    flipped = img[::-1,:,:]
+
+    return av.VideoFrame.from_ndarray(flipped, format="bgr24")
     kpil, kpil2, kpil3 = st.columns(3)
 
     with kpil:
