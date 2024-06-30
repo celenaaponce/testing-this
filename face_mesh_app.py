@@ -17,8 +17,6 @@ import tempfile
 import time
 from PIL import Image
 
-DEMO_IMAGE = 'demo/demo.jpg'
-DEMO_VIDEO = 'demo/demo.mp4'
 
 # Basic App Scaffolding
 st.title('Face Mesh App using Streamlit')
@@ -52,13 +50,12 @@ def image_resize(image, width=None, height=None, inter=cv.INTER_AREA):
 # Video Page
 st.set_option('deprecation.showfileUploaderEncoding', False)
 
-drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
 use_webcam = True
 ## Get Video
 stframe = st.empty()
 temp_file = tempfile.NamedTemporaryFile(delete=False)
 webrtc_ctx = webrtc_streamer(key="sample", rtc_configuration={"iceServers": get_ice_servers()})    
-
+st.write(webrtc_ctx.video_receiver)
 if webrtc_ctx.video_receiver:
 
     video_frame = webrtc_ctx.video_receiver.get_frame(timeout=1)
