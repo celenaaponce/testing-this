@@ -2,7 +2,7 @@ import logging
 import queue
 from pathlib import Path
 from typing import List, NamedTuple
-
+from turn import get_ice_servers
 import av
 import cv2
 import numpy as np
@@ -56,6 +56,7 @@ webrtc_ctx = webrtc_streamer(
     key="holistic-detection",
     mode=WebRtcMode.SENDRECV,
     video_frame_callback=video_frame_callback,
+    rtc_configuration={"iceServers": get_ice_servers()},
     media_stream_constraints={"video": True, "audio": False},
     async_processing=True,
 )
