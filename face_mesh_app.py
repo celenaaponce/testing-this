@@ -85,7 +85,7 @@ if cache_key in st.session_state:
 #       so use a queue here for thread-safety to pass the data
 #       from inside to outside the callback.
 # TODO: A general-purpose shared state object may be more useful.
-result_queue: "queue.Queue[List[Detection]]" = queue.Queue()
+result_queue: "queue.Queue[List[results]]" = queue.Queue()
 
 
 def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
