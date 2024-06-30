@@ -49,7 +49,16 @@ def image_resize(image, width=None, height=None, inter=cv.INTER_AREA):
     return resized
 
 def video_frame_callback(frame):
-    img = frame.to_ndarray(format="bgr24")
+    image = frame.to_ndarray(format="bgr24")
+
+    # Run inference
+    blob = cv2.dnn.blobFromImage(
+        cv2.resize(image, (300, 300)), 0.007843, (300, 300), 127.5
+    )
+    net.setInput(blob)
+    output = net.forward()
+
+    h, w = image.shape[:2]
 
     kpil, kpil2, kpil3 = st.columns(3)
 
@@ -62,7 +71,6 @@ def video_frame_callback(frame):
         kpil2_text = st.markdown('0')
     
     dominant_hand = 'LEFT'
-    st.markdown('<hr/>', unsafe_allow_html=True)
     # keypoint_classifier = KeyPointClassifier()
     # with open('model/keypoint_classifier/keypoint_classifier_label.csv',
     #             encoding='utf-8-sig') as f:
@@ -83,12 +91,12 @@ def video_frame_callback(frame):
         
     prevTime = 0
 
-    results = holistic.process(img)
-    mp.solutions.drawing_utils.draw_landmarks(img, results.pose_landmarks, mp.solutions.holistic.POSE_CONNECTIONS, 
+    results = holistic.process(image)
+    mp.solutions.drawing_utils.draw_landmarks(image, results.pose_landmarks, mp.solutions.holistic.POSE_CONNECTIONS, 
         mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
         mp.solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
         ) 
-    return av.VideoFrame.from_ndarray(img, format="bgr24")
+    return av.VideoFrame.from_ndarray(image, format="bgr24")
     img.flags.writeable = True
     left_present = dominant_hand == 'LEFT' and results.left_hand_landmarks is not None
     right_present = dominant_hand == 'RIGHT' and results.right_hand_landmarks is not None
