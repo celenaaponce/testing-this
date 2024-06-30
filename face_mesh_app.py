@@ -47,14 +47,6 @@ def image_resize(image, width=None, height=None, inter=cv.INTER_AREA):
     resized = cv.resize(image,dim,interpolation=inter)
 
     return resized
-# Video Page
-st.set_option('deprecation.showfileUploaderEncoding', False)
-
-use_webcam = True
-## Get Video
-stframe = st.empty()
-temp_file = tempfile.NamedTemporaryFile(delete=False)
-webrtc_streamer(key="sample", rtc_configuration={"iceServers": get_ice_servers()}, video_frame_callback=video_frame_callback)    
 
 def video_frame_callback(frame):
     kpil, kpil2, kpil3 = st.columns(3)
@@ -152,6 +144,16 @@ def video_frame_callback(frame):
         # frame = cv.resize(frame,(0,0), fx=0.8, fy=0.8)
         # frame = image_resize(image=frame, width=640)
         # stframe.image(frame,channels='BGR', use_column_width=True)
+
+
+# Video Page
+st.set_option('deprecation.showfileUploaderEncoding', False)
+
+use_webcam = True
+## Get Video
+stframe = st.empty()
+temp_file = tempfile.NamedTemporaryFile(delete=False)
+webrtc_streamer(key="sample", rtc_configuration={"iceServers": get_ice_servers()}, video_frame_callback=video_frame_callback)    
 
 
     # width = int(webrtc_ctx.get(cv.CAP_PROP_FRAME_WIDTH))
