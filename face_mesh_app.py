@@ -83,6 +83,7 @@ def video_frame_callback(frame):
         prevTime = 0
 
         results = holistic.process(frame)
+        return results
         frame.flags.writeable = True
         left_present = dominant_hand == 'LEFT' and results.left_hand_landmarks is not None
         right_present = dominant_hand == 'RIGHT' and results.right_hand_landmarks is not None
