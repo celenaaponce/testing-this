@@ -13,6 +13,7 @@ import cv2
 import numpy as np
 import streamlit as st
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
+import mediapipe as mp
 
 from turn import get_ice_servers
 
@@ -89,6 +90,11 @@ result_queue: "queue.Queue[List[Detection]]" = queue.Queue()
 
 def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     image = frame.to_ndarray(format="bgr24")
+    results = holistic.process(image)
+    mp.solutions.drawing_utils.draw_landmarks(image, results.pose_landmarks, mp.solutions.holistic.POSE_CONNECTIONS, 
+        mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
+        mp.solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
+        ) 
 
     # Run inference
     blob = cv2.dnn.blobFromImage(
