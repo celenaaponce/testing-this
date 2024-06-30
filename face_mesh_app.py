@@ -16,11 +16,63 @@ logger = logging.getLogger(__name__)
 # Initialize Mediapipe Holistic
 mp_holistic = mp.solutions.holistic
 holistic = mp_holistic.Holistic()
-
+pre_processed_landmark_list = None
+tagged_signs = []
+success = False
+after_success = 0
+hand_sign_id = 1
+dominant_hand = 'LEFT'
 # Define a NamedTuple for the holistic results if needed
 class HolisticResult(NamedTuple):
     landmarks: np.ndarray
     # Add other attributes as needed
+
+def calc_bounding_rect(image, landmarks):
+    image_width, image_height = image.shape[1], image.shape[0]
+
+    landmark_array = np.empty((0, 2), int)
+
+    for _, landmark in enumerate(landmarks.landmark):
+        landmark_x = min(int(landmark.x * image_width), image_width - 1)
+        landmark_y = min(int(landmark.y * image_height), image_height - 1)
+
+        landmark_point = [np.array((landmark_x, landmark_y))]
+
+        landmark_array = np.append(landmark_array, landmark_point, axis=0)
+
+    x, y, w, h = cv.boundingRect(landmark_array)
+
+    return [x, y, x + w, y + h]
+    
+def pre_process_landmark(landmark_list):
+    x_values = [element.x for element in landmark_list]
+    y_values = [element.y for element in landmark_list]
+
+    # temp_landmark_list = copy.deepcopy(landmark_list)
+    temp_x = copy.deepcopy(x_values)
+    temp_y = copy.deepcopy(y_values)
+    # Convert to relative coordinates
+    base_x, base_y = 0, 0
+    index = 0
+    for _ in len(temp_x),:
+        if index == 0:
+            base_x, base_y = temp_x[index], temp_y[index]         
+        temp_x[index] = temp_x[index] - base_x
+        temp_y[index] = temp_y[index] - base_y
+        index += 1
+    # Convert to a one-dimensional list
+ 
+    temp_landmark_list = list(itertools.chain(*zip(temp_x, temp_y))) 
+
+    # Normalization
+    max_value = max(list(map(abs, temp_landmark_list)))
+
+    def normalize_(n):
+        return n / max_value
+
+    temp_landmark_list = list(map(normalize_, temp_landmark_list))
+
+    return temp_landmark_list
 
 # Session-specific caching
 cache_key = "mediapipe_holistic"
@@ -30,6 +82,7 @@ if cache_key not in st.session_state:
 result_queue: "queue.Queue[List[HolisticResult]]" = queue.Queue()
 
 def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
+
     image = frame.to_ndarray(format="bgr24")
     
     # Convert the BGR image to RGB
@@ -37,7 +90,15 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     
     # Process the image and detect holistic landmarks
     results = holistic.process(image_rgb)
-    
+    left_present = dominant_hand == 'LEFT' and results.left_hand_landmarks is not None
+    right_present = dominant_hand == 'RIGHT' and results.right_hand_landmarks is not None
+    if results.left_hand_landmarks:
+    #left eye edge to thumb tip distance
+        x_distance = abs(results.pose_landmarks.landmark[3].x - results.left_hand_landmarks.landmark[4].x)
+        y_distance = abs(results.pose_landmarks.landmark[3].y - results.left_hand_landmarks.landmark[4].y)
+        brect = calc_bounding_rect(frame, results.left_hand_landmarks)
+        pre_processed_landmark_list = pre_process_landmark(
+            results.left_hand_landmarks.landmark)  
     # Draw landmarks on the image
     mp.solutions.drawing_utils.draw_landmarks(
         image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
@@ -45,7 +106,8 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
         image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
     mp.solutions.drawing_utils.draw_landmarks(
         image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
-    
+    pre_processed_face_landmark_list = pre_process_landmark(results.pose_landmarks.landmark)[:12]
+    total_list = pre_processed_landmark_list + pre_processed_face_landmark_list + [x_distance, y_distance]  
     # Extract landmarks and other data if needed
     landmarks = results.pose_landmarks.landmark if results.pose_landmarks else []
     result_queue.put(landmarks)
@@ -61,12 +123,12 @@ webrtc_ctx = webrtc_streamer(
     async_processing=True,
 )
 
-if st.checkbox("Show the detected landmarks", value=True):
-    if webrtc_ctx.state.playing:
-        landmarks_placeholder = st.empty()
-        while True:
-            result = result_queue.get()
-            landmarks_placeholder.table(result)
+# if st.checkbox("Show the detected landmarks", value=True):
+if webrtc_ctx.state.playing:
+    landmarks_placeholder = st.empty()
+    while True:
+        result = result_queue.get()
+            # landmarks_placeholder.table(result)
 
 
 
