@@ -80,7 +80,9 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     #left eye edge to thumb tip distance
         x_distance = abs(results.pose_landmarks.landmark[3].x - results.left_hand_landmarks.landmark[4].x)
         y_distance = abs(results.pose_landmarks.landmark[3].y - results.left_hand_landmarks.landmark[4].y)
-        pre_processed_landmark_list = pre_process_landmark(results.left_hand_landmarks.landmark)  
+        pre_processed_landmark_list = pre_process_landmark(results.left_hand_landmarks.landmark) 
+    pre_processed_face_landmark_list = pre_process_landmark(results.pose_landmarks.landmark)[:12]
+    total_list = pre_processed_landmark_list + pre_processed_face_landmark_list + [x_distance, y_distance]  
     # Draw landmarks on the image
     mp.solutions.drawing_utils.draw_landmarks(
         image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
@@ -88,8 +90,7 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
         image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
     mp.solutions.drawing_utils.draw_landmarks(
         image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
-    pre_processed_face_landmark_list = pre_process_landmark(results.pose_landmarks.landmark)[:12]
-    total_list = pre_processed_landmark_list + pre_processed_face_landmark_list + [x_distance, y_distance]  
+
     # Extract landmarks and other data if needed
     landmarks = results.pose_landmarks.landmark if results.pose_landmarks else []
     if result_queue.full():
