@@ -49,6 +49,7 @@ def image_resize(image, width=None, height=None, inter=cv.INTER_AREA):
     return resized
 
 def video_frame_callback(frame):
+    st.write(frame)
     kpil, kpil2, kpil3 = st.columns(3)
 
     with kpil:
