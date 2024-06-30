@@ -5,6 +5,7 @@ from typing import List, NamedTuple
 from turn import get_ice_servers
 import av
 import cv2
+import gc
 import numpy as np
 import streamlit as st
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
@@ -78,12 +79,18 @@ def pre_process_landmark(landmark_list):
 cache_key = "mediapipe_holistic"
 if cache_key not in st.session_state:
     st.session_state[cache_key] = holistic
+# Reduce frame resolution
+TARGET_WIDTH = 640
+TARGET_HEIGHT = 480
 
-result_queue: "queue.Queue[List[HolisticResult]]" = queue.Queue()
+# Limit the queue size
+QUEUE_MAX_SIZE = 10
+result_queue: "queue.Queue[List[HolisticResult]]" = queue.Queue(maxsize=QUEUE_MAX_SIZE)
 
 def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
 
     image = frame.to_ndarray(format="bgr24")
+    image = cv2.resize(image, (TARGET_WIDTH, TARGET_HEIGHT))
     
     # Convert the BGR image to RGB
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -111,7 +118,9 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     # Extract landmarks and other data if needed
     landmarks = results.pose_landmarks.landmark if results.pose_landmarks else []
     result_queue.put(landmarks)
-
+    # Clear Mediapipe results to free memory
+    del results
+    gc.collect()  # Trigger garbage collection
     return av.VideoFrame.from_ndarray(image, format="bgr24")
 
 webrtc_ctx = webrtc_streamer(
