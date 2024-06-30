@@ -20,6 +20,7 @@ from PIL import Image
 
 # Basic App Scaffolding
 st.title('Face Mesh App using Streamlit')
+result_queue: "queue.Queue[List[Detection]]" = queue.Queue()
 
 # Resize Images to fit Container
 @st.cache()
@@ -176,6 +177,16 @@ webrtc_ctx = webrtc_streamer(
     media_stream_constraints={"video": True, "audio": False},
     async_processing=True,
 )
+if webrtc_ctx.state.playing:
+    labels_placeholder = st.empty()
+    # NOTE: The video transformation with object detection and
+    # this loop displaying the result labels are running
+    # in different threads asynchronously.
+    # Then the rendered video frames and the labels displayed here
+    # are not strictly synchronized.
+    while True:
+        result = result_queue.get()
+        labels_placeholder.table(result)
 
     # width = int(webrtc_ctx.get(cv.CAP_PROP_FRAME_WIDTH))
     # height = int(webrtc_ctx.get(cv.CAP_PROP_FRAME_HEIGHT))
