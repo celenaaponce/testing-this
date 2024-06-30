@@ -66,24 +66,14 @@ if webrtc_ctx.video_receiver:
 
     video_frame = webrtc_ctx.video_receiver.get_frame(timeout=1)
     img_rgb = video_frame.to_ndarray(format="rgb24")
-    stframe.image(img_rgb)
+    # stframe.image(img_rgb)
 
 
-    # width = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
-    # height = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
-    # fps_input = int(video.get(cv.CAP_PROP_FPS))
+    width = int(webrtc_ctx.get(cv.CAP_PROP_FRAME_WIDTH))
+    height = int(webrtc_ctx.get(cv.CAP_PROP_FRAME_HEIGHT))
+    fps_input = int(webrtc_ctx.get(cv.CAP_PROP_FPS))
 
-    # ## Recording
-    # codec = cv.VideoWriter_fourcc('a','v','c','1')
-    # out = cv.VideoWriter('output1.mp4', codec, fps_input, (width,height))
-
-    # st.sidebar.text('Input Video')
-    # st.sidebar.video(temp_file.name)
-
-    # fps = 0
-    # i = 0
-
-    # drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
+    drawing_spec = mp.solutions.drawing_utils.DrawingSpec(thickness=2, circle_radius=1)
 
     # kpil, kpil2, kpil3 = st.columns(3)
 
