@@ -86,6 +86,7 @@ def video_frame_callback(frame):
         left_present = dominant_hand == 'LEFT' and results.left_hand_landmarks is not None
         right_present = dominant_hand == 'RIGHT' and results.right_hand_landmarks is not None
         face_count = 0
+        st.write(results)
         if results.pose_landmarks is not None and left_present or right_present and not success:
 
             #Face Landmark Drawing
