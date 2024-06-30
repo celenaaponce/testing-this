@@ -160,7 +160,7 @@ use_webcam = True
 ## Get Video
 stframe = st.empty()
 temp_file = tempfile.NamedTemporaryFile(delete=False)
-webrtc_streamer(key="sample", rtc_configuration={"iceServers": get_ice_servers()}, video_frame_callback=video_frame_callback)    
+webrtc_streamer(key="sample", rtc_configuration={"iceServers": get_ice_servers()}, video_frame_callback=video_frame_callback, media_stream_constraints={"video": True, "audio": False},)    
 
 
     # width = int(webrtc_ctx.get(cv.CAP_PROP_FRAME_WIDTH))
