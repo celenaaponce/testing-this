@@ -8,9 +8,10 @@ def video_frame_callback(frame):
     flipped = img[::-1,:,:]
 
     return av.VideoFrame.from_ndarray(flipped, format="bgr24")
-
+i = 0
 while True:
-    webrtc_streamer(key="example", video_frame_callback=video_frame_callback)
+    webrtc_streamer(key=str(i), video_frame_callback=video_frame_callback)
+    i+=1
 
 # import streamlit as st
 # from streamlit_webrtc import webrtc_streamer
