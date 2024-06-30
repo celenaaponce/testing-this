@@ -90,6 +90,10 @@ result_queue: "queue.Queue[List[Detection]]" = queue.Queue()
 
 def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     image = frame.to_ndarray(format="bgr24")
+    holistic = mp.solutions.holistic.Holistic(
+     min_detection_confidence=0.7,
+     min_tracking_confidence=0.5
+     )
     results = holistic.process(image)
     mp.solutions.drawing_utils.draw_landmarks(image, results.pose_landmarks, mp.solutions.holistic.POSE_CONNECTIONS, 
         mp.solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
