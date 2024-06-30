@@ -83,18 +83,18 @@ def video_frame_callback(frame):
 
         results = holistic.process(frame)
         frame.flags.writeable = True
-        # left_present = dominant_hand == 'LEFT' and results.left_hand_landmarks is not None
-        # right_present = dominant_hand == 'RIGHT' and results.right_hand_landmarks is not None
-        # face_count = 0
-        # if results.pose_landmarks is not None and left_present or right_present and not success:
+        left_present = dominant_hand == 'LEFT' and results.left_hand_landmarks is not None
+        right_present = dominant_hand == 'RIGHT' and results.right_hand_landmarks is not None
+        face_count = 0
+        if results.pose_landmarks is not None and left_present or right_present and not success:
 
-        #     #Face Landmark Drawing
-        #     for face_landmarks in results.pose_landmarks.landmark:
+            #Face Landmark Drawing
+            for face_landmarks in results.pose_landmarks.landmark:
 
-        #         solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, solutions.holistic.POSE_CONNECTIONS, 
-        #                 solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
-        #                 solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
-        #                 ) 
+                solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, solutions.holistic.POSE_CONNECTIONS, 
+                        solutions.drawing_utils.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),  
+                        solutions.drawing_utils.DrawingSpec(color=(80,44,121), thickness=2, circle_radius=2) 
+                        ) 
         #     if results.left_hand_landmarks:
         #     #left eye edge to thumb tip distance
         #         x_distance = abs(results.pose_landmarks.landmark[3].x - results.left_hand_landmarks.landmark[4].x)
