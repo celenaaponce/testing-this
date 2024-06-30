@@ -1,6 +1,13 @@
 import logging
 import streamlit as st
 from streamlit_webrtc import webrtc_streamer
+import logging
+import queue
+
+import streamlit as st
+from streamlit_webrtc import WebRtcMode, webrtc_streamer
+
+from sample_utils.turn import get_ice_servers
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -10,7 +17,7 @@ def main():
     st.header("WebRTC Streamer Example")
 
     try:
-        webrtc_ctx = webrtc_streamer(key="sample")
+        webrtc_ctx = webrtc_streamer(key="sample", rtc_configuration={"iceServers": get_ice_servers()},)
 
         # Additional debugging information
         if webrtc_ctx.state.playing:
