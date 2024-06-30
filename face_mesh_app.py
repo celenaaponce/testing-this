@@ -51,9 +51,6 @@ def image_resize(image, width=None, height=None, inter=cv.INTER_AREA):
 def video_frame_callback(frame):
     img = frame.to_ndarray(format="bgr24")
 
-    flipped = img[::-1,:,:]
-
-    return av.VideoFrame.from_ndarray(flipped, format="bgr24")
     kpil, kpil2, kpil3 = st.columns(3)
 
     with kpil:
@@ -86,7 +83,7 @@ def video_frame_callback(frame):
         
         prevTime = 0
 
-        results = holistic.process(frame)
+        results = holistic.process(img)
         return results
         frame.flags.writeable = True
         left_present = dominant_hand == 'LEFT' and results.left_hand_landmarks is not None
