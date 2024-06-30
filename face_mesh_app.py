@@ -114,7 +114,7 @@ def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
     # ]
 
     # Render bounding boxes and captions
-    for detection in detections:
+    # for detection in detections:
         # caption = f"{detection.label}: {round(detection.score * 100, 2)}%"
         # color = COLORS[detection.class_id]
         # xmin, ymin, xmax, ymax = detection.box.astype("int")
