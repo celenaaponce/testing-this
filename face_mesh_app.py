@@ -9,7 +9,7 @@ def video_frame_callback(frame):
 
     return av.VideoFrame.from_ndarray(flipped, format="bgr24")
 
-webrtc_streamer(key=str(i), video_frame_callback=video_frame_callback)
+webrtc_streamer(key="test", video_frame_callback=video_frame_callback)
 
 
 # import streamlit as st
